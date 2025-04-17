@@ -36,6 +36,20 @@ jobs:
         run: terraform init
         working-directory: ./ECS-terraform
 
+      - name: 🔎 Import ECR Repository if Exists
+        run: |
+          if aws ecr describe-repositories --repository-names tic-tac > /dev/null 2>&1; then
+            terraform import aws_ecr_repository.tic_tac tic-tac || true
+          fi
+        working-directory: ./ECS-terraform
+
+      - name: 🔎 Import IAM Role if Exists
+        run: |
+          if aws iam get-role --role-name ecsTaskExecutionRole > /dev/null 2>&1; then
+            terraform import aws_iam_role.ecs_task_execution_role ecsTaskExecutionRole || true
+          fi
+        working-directory: ./ECS-terraform
+
       - name: 📦 Terraform Apply
         run: terraform apply -auto-approve
         working-directory: ./ECS-terraform
